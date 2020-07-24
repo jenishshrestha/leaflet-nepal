@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Nepal GeoJSON - Leaflet</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+    </style>
+
+    <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+
+        .leaflet-container {
+            background: #bbb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id='map'></div>
+
+    <script type="text/javascript" src="nepal-province.js"></script>
+    <script type="text/javascript" src="province1-district.js"></script>
+    <script type="text/javascript" src="province2-district.js"></script>
+    <script type="text/javascript" src="province3-district.js"></script>
+    <script type="text/javascript" src="province4-district.js"></script>
+    <script type="text/javascript" src="province5-district.js"></script>
+    <script type="text/javascript" src="province6-district.js"></script>
+    <script type="text/javascript" src="province7-district.js"></script>
+
+    <script type="text/javascript">
+
+
+var provinceMap,provinceGeoJson, stateGeoJson;
+        /**
+        **  Initialize map
+        **/
+        provinceMap = L.map('map', {
+			scrollWheelZoom: false,
+			touchZoom: false,
+			doubleClickZoom: false,
+			zoomControl: true,
+			dragging: true
+        }).setView([28.3949, 84.1240], 8);
+
+
+        /**
+        **  GeoJSON data
+        **/
+        provinceGeoJson = L.geoJson(provinceData, {
+            style: style,
+            onEachFeature: onEachFeature
+        }).addTo(provinceMap);
+
+        var bound = provinceGeoJson.getBounds();
+        provinceMap.fitBounds(bound);
+
+        /**
+         *  Functions for map
+        **/
+        function style(feature) {
+            return {
+                weight: 2,
+                opacity: 1,
+                color: '#FFF',
+                dashArray: '1',
+                fillOpacity: 0.7,
+                fillColor: getProvinceColor(feature.properties.Province),
+            };
+        }
+
+        function highlightFeature(e) {
+            var layer = e.target;
+
+            layer.setStyle({
+                weight: 2,
+                color: 'black',
+                dashArray: '',
+                fillOpacity: 0.7,
+                fillColor: '#fff'
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+            }
+        }
+
+        function getProvinceColor(province) {
+			switch (province) {
+				case 1:
+					return 'red';
+					break;
+				case 2:
+					return 'green';
+					break;
+				case 3:
+					return 'blue';
+					break;
+				case 4:
+					return 'lightblue';
+					break;
+				case 5:
+					return 'lightgreen';
+					break;
+				case 6:
+					return 'yellow';
+					break;
+				case 7:
+					return 'orange';
+					break;
+				default:
+					return 'skyblue';
+					break;
+			}
+		}
+
+        function resetHighlight(e) {
+            provinceGeoJson.resetStyle(e.target);
+            // info.update();
+        }
+
+        function zoomToProvince(e) {
+            var json,
+            province_number = e.target.feature.properties.Province;
+
+            provinceMap.fitBounds(e.target.getBounds());
+            console.log(stateGeoJson);
+
+            if (stateGeoJson != undefined) { stateGeoJson.clearLayers(); }
+
+            switch (province_number) {
+				case 1:
+                json = province_1;
+					break;
+				case 2:
+                json = province_2;
+					break;
+				case 3:
+                json = province_3;
+					break;
+				case 4:
+                json = province_4;
+					break;
+				case 5:
+                json = province_5;
+					break;
+				case 6:
+                json = province_6;
+					break;
+				case 7:
+                json = province_7;
+					break;
+				default:
+                json = '';
+					break;
+            }
+            // provinceMap.removeLayer(stateGeoJson);
+
+            stateGeoJson = L.geoJson(json, {
+                style: style,
+                onEachFeature: onEachFeature
+            }).addTo(provinceMap);
+
+            // provinceMap.removeLayer(stateGeoJson);
+
+            stateGeoJson.eachLayer(function (layer) {
+                layer.bindTooltip(layer.feature.properties.DISTRICT, { permanent: true, direction: "center" }).openTooltip()
+            });
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: zoomToProvince
+            });
+        }
+
+/**
+**  Markers example
+**/
+        // var marker = L.marker([27.7172, 85.3240]).addTo(map);
+        // marker.bindPopup("This marker is pointing Kathmandu city.");
+
+    </script>
+
+
+
+</body>
+
+</html>
